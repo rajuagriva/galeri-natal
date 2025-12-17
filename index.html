@@ -298,4 +298,10 @@
                 document.body.appendChild(link); link.click();
                 document.body.removeChild(link); window.URL.revokeObjectURL(blobUrl);
                 toast.classList.add('hidden');
-            }).ca
+}).catch(err => { console.error(err); toast.classList.add('hidden'); alert("Gagal koneksi."); });
+        }
+        
+        function closeLightbox() { lightbox.classList.add('hidden'); lbImg.src = ""; lbVideo.src = ""; document.body.style.overflow = 'auto'; }
+    </script>
+</body>
+</html>
