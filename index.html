@@ -9,19 +9,13 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .font-elegant { font-family: 'Playfair Display', serif; }
-        
-        /* Animasi */
         @keyframes snowfall { 0% { transform: translateY(-10px); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(100px); opacity: 0; } }
         .animate-snow { animation: snowfall 4s linear infinite; }
         .christmas-lights { display: flex; justify-content: center; gap: 8px; padding-top: 5px; position: absolute; top: 0; width: 100%; z-index: 20; }
         .light { width: 8px; height: 8px; border-radius: 50%; animation: twinkle 1s infinite alternate; }
         @keyframes twinkle { 0% { opacity: 0.4; } 100% { opacity: 1; box-shadow: 0 0 10px currentColor; } }
-
-        /* Tombol Micro */
         .control-btn { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #ccc; padding: 5px 0; text-align: center; border-radius: 4px; font-weight: 600; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.1s; }
         .control-btn:active { background: rgba(255, 255, 255, 0.3); color: white; transform: scale(0.96); }
-
-        /* Loader */
         .loader { border: 2px solid rgba(255,255,255,0.1); border-top: 2px solid #fbbf24; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.6s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -38,7 +32,6 @@
                 <span class="text-lg filter drop-shadow-md">🎄</span>
             </div>
             <p class="text-[8px] text-red-200 uppercase tracking-[0.2em] font-serif mt-0.5 border-t border-red-700 inline-block px-4 pt-1">Tim Dokumentasi 2025</p>
-            
             <div id="filter-container" class="flex justify-center gap-3 mt-3">
                 <button onclick="changeFilter('image')" id="btn-foto" class="px-4 py-1.5 rounded-sm text-[9px] font-bold tracking-widest uppercase transition border border-white bg-white text-red-900 shadow-sm">FOTO</button>
                 <button onclick="changeFilter('video')" id="btn-video" class="px-4 py-1.5 rounded-sm text-[9px] font-bold tracking-widest uppercase transition border border-red-800 bg-red-950 text-red-300">VIDEO</button>
@@ -50,7 +43,6 @@
     <div id="view-gallery">
         <main class="max-w-6xl mx-auto px-2 md:px-6 min-h-screen">
             <div id="skeleton-loader" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 md:gap-4">
-                <div class="bg-gray-300 h-28 rounded animate-pulse"></div><div class="bg-gray-300 h-28 rounded animate-pulse"></div>
                 <div class="bg-gray-300 h-28 rounded animate-pulse"></div><div class="bg-gray-300 h-28 rounded animate-pulse"></div>
                 <div class="bg-gray-300 h-28 rounded animate-pulse"></div><div class="bg-gray-300 h-28 rounded animate-pulse"></div>
             </div>
@@ -70,7 +62,7 @@
                     <input type="text" id="inpTitle" class="w-full bg-gray-50 border border-gray-300 rounded p-2 text-sm" placeholder="Contoh: Vokal Grup">
                 </div>
                 <div>
-                    <label class="block text-[10px] uppercase font-bold text-gray-500">ID YouTube</label>
+                    <label class="block text-[10px] uppercase font-bold text-gray-500">ID YouTube / Link</label>
                     <input type="text" id="inpYt" class="w-full bg-gray-50 border border-gray-300 rounded p-2 text-sm" placeholder="Contoh: dQw4w9WgXcQ">
                 </div>
                 <div>
@@ -114,44 +106,37 @@
         let filteredData = [];
         let currentIndex = 0; let currentFilter = 'image'; let currentZoom = 1;
 
-        // Mode Check
         const urlParams = new URLSearchParams(window.location.search);
         const isAdmin = urlParams.get('mode') === 'admin';
-        
         const viewGallery = document.getElementById('view-gallery');
         const viewAdmin = document.getElementById('view-admin');
         const filterContainer = document.getElementById('filter-container');
 
-        if(isAdmin) {
-            viewGallery.classList.add('hidden'); viewAdmin.classList.remove('hidden'); filterContainer.classList.add('hidden');
-        } else {
-            viewGallery.classList.remove('hidden'); viewAdmin.classList.add('hidden'); filterContainer.classList.remove('hidden');
-            loadData();
-        }
+        if(isAdmin) { viewGallery.classList.add('hidden'); viewAdmin.classList.remove('hidden'); filterContainer.classList.add('hidden'); } 
+        else { viewGallery.classList.remove('hidden'); viewAdmin.classList.add('hidden'); filterContainer.classList.remove('hidden'); loadData(); }
 
-        // --- ADMIN SUBMIT ---
         document.getElementById('videoForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const status = document.getElementById('adminStatus');
+            const btn = document.getElementById('submitBtn'); const status = document.getElementById('adminStatus');
             btn.textContent = "Menyimpan..."; btn.disabled = true;
-            
             const title = document.getElementById('inpTitle').value;
             const yt = document.getElementById('inpYt').value;
             const dr = document.getElementById('inpDr').value;
-
             fetch(`${scriptURL}?action=add&title=${encodeURIComponent(title)}&yt=${encodeURIComponent(yt)}&dr=${encodeURIComponent(dr)}`)
-            .then(res => {
-                status.textContent = "✅ Sukses!"; status.className = "text-center text-xs mt-2 text-green-600 font-bold";
-                document.getElementById('videoForm').reset();
-                setTimeout(() => { btn.textContent = "SIMPAN DATA"; btn.disabled = false; status.textContent = ""; }, 2000);
-            }).catch(err => { status.textContent = "❌ Gagal."; btn.disabled = false; });
+            .then(res => { status.textContent = "✅ Sukses!"; status.className = "text-center text-xs mt-2 text-green-600 font-bold"; document.getElementById('videoForm').reset(); setTimeout(() => { btn.textContent = "SIMPAN DATA"; btn.disabled = false; status.textContent = ""; }, 2000); })
+            .catch(err => { status.textContent = "❌ Gagal."; btn.disabled = false; });
         });
 
-        // --- GALERI LOGIC ---
+        // FUNGSI PEMBERSIH ID YOUTUBE (ANTI ERROR)
+        function cleanYoutubeID(urlOrId) {
+            // Regex untuk ambil ID dari berbagai format link youtube
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = urlOrId.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : urlOrId;
+        }
+
         function loadData() {
-            const container = document.getElementById('gallery-container');
-            const skeleton = document.getElementById('skeleton-loader');
+            const container = document.getElementById('gallery-container'); const skeleton = document.getElementById('skeleton-loader');
             fetch(scriptURL + "?action=read").then(res => res.json()).then(data => {
                 allData = data; skeleton.classList.add('hidden'); container.classList.remove('hidden'); changeFilter('image');
             }).catch(err => { skeleton.innerHTML = "<p class='col-span-full text-center text-red-500 text-xs'>Gagal memuat.</p>"; });
@@ -159,10 +144,7 @@
 
         function changeFilter(type) {
             currentFilter = type;
-            const btnFoto = document.getElementById('btn-foto');
-            const btnVideo = document.getElementById('btn-video');
-            const emptyState = document.getElementById('empty-state');
-            
+            const btnFoto = document.getElementById('btn-foto'); const btnVideo = document.getElementById('btn-video'); const emptyState = document.getElementById('empty-state');
             if(type === 'image') {
                 btnFoto.className = "px-4 py-1.5 rounded-sm text-[9px] font-bold tracking-widest uppercase transition border border-white bg-white text-red-900 shadow-sm transform scale-105";
                 btnVideo.className = "px-4 py-1.5 rounded-sm text-[9px] font-bold tracking-widest uppercase transition border border-red-800 bg-red-950 text-red-300 opacity-60 hover:opacity-100";
@@ -172,27 +154,44 @@
                 btnFoto.className = "px-4 py-1.5 rounded-sm text-[9px] font-bold tracking-widest uppercase transition border border-red-800 bg-red-950 text-red-300 opacity-60 hover:opacity-100";
                 filteredData = allData.videos || [];
             }
+            renderGrid();
+        }
 
-            const container = document.getElementById('gallery-container'); container.innerHTML = '';
+        function renderGrid() {
+            const container = document.getElementById('gallery-container'); const emptyState = document.getElementById('empty-state');
+            container.innerHTML = '';
             if (filteredData.length === 0) { emptyState.classList.remove('hidden'); return; } else { emptyState.classList.add('hidden'); }
 
             filteredData.forEach((item, index) => {
                 const isVideo = currentFilter === 'video';
-                let thumbUrl = isVideo ? `https://img.youtube.com/vi/${item.youtubeId}/hqdefault.jpg` : `https://drive.google.com/thumbnail?id=${item.driveId}&sz=w400`;
+                // Gunakan Cleaner untuk ambil ID yang benar
+                const cleanYtId = isVideo ? cleanYoutubeID(item.youtubeId) : ""; 
+                let thumbUrl = isVideo ? `https://img.youtube.com/vi/${cleanYtId}/hqdefault.jpg` : `https://drive.google.com/thumbnail?id=${item.driveId}&sz=w400`;
+                
                 const card = document.createElement('div');
                 card.className = "bg-white rounded shadow-sm overflow-hidden active:scale-95 transition-transform duration-100 relative border border-gray-100 cursor-pointer";
                 card.onclick = () => openLightbox(index);
-                card.innerHTML = `<div class="aspect-square bg-gray-200 relative flex items-center justify-center overflow-hidden"><img src="${thumbUrl}" alt="Img" class="w-full h-full object-cover relative z-10 transition-opacity duration-300 opacity-0" loading="lazy" onload="this.classList.remove('opacity-0')">${isVideo ? '<div class="absolute inset-0 flex items-center justify-center bg-black/40 z-20"><div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center shadow-lg"><span class="text-white text-xs">▶</span></div></div>' : ''}</div>`;
-                if(isVideo) card.innerHTML += `<div class="p-2 bg-white text-center"><p class="text-[9px] font-serif uppercase tracking-wider text-gray-700 truncate">${item.title}</p></div>`;
+                
+                let contentHtml = `
+                    <div class="aspect-square bg-gray-200 relative flex items-center justify-center overflow-hidden">
+                        <img src="${thumbUrl}" alt="Img" class="w-full h-full object-cover relative z-10 transition-opacity duration-300 opacity-0" loading="lazy" onload="this.classList.remove('opacity-0')">
+                        ${isVideo ? '<div class="absolute inset-0 flex items-center justify-center bg-black/40 z-20"><div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center shadow-lg"><span class="text-white text-xs">▶</span></div></div>' : ''}
+                        
+                        <button onclick="event.stopPropagation(); quickDownload(${index})" class="absolute bottom-1 right-1 bg-green-600 text-white p-1.5 rounded shadow hover:bg-green-500 z-30 border border-white/20 active:scale-90 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        </button>
+                    </div>
+                `;
+                if(isVideo) contentHtml += `<div class="p-2 bg-white text-center"><p class="text-[9px] font-serif uppercase tracking-wider text-gray-700 truncate">${item.title}</p></div>`;
+                card.innerHTML = contentHtml;
                 container.appendChild(card);
             });
         }
 
-        // --- LIGHTBOX ---
         const lightbox = document.getElementById('lightbox'); const lbImg = document.getElementById('lb-img'); const lbVideo = document.getElementById('lb-video'); const lbSpinner = document.getElementById('lb-spinner'); const lbTitle = document.getElementById('lb-title'); const lbBtn = document.getElementById('lb-download-btn'); const zoomControls = document.getElementById('zoom-controls'); const zoomArea = document.getElementById('zoom-area');
 
         function openLightbox(index) { currentIndex = index; currentZoom = 1; lightbox.classList.remove('hidden'); document.body.style.overflow = 'hidden'; updateContent(); }
-        
+
         function updateContent() {
             const item = filteredData[currentIndex]; const isVideo = currentFilter === 'video';
             lbTitle.innerText = item.title.replace(/\.[^/.]+$/, "");
@@ -200,7 +199,9 @@
 
             if (isVideo) {
                 lbImg.classList.add('hidden'); lbSpinner.classList.add('hidden'); lbVideo.classList.remove('hidden'); zoomControls.classList.add('hidden');
-                lbVideo.src = `https://www.youtube.com/embed/${item.youtubeId}?autoplay=1&rel=0`;
+                // CLEANER LAGI UNTUK PLAYER
+                const cleanYtId = cleanYoutubeID(item.youtubeId);
+                lbVideo.src = `https://www.youtube.com/embed/${cleanYtId}?autoplay=1&rel=0`;
                 lbBtn.innerHTML = "Download File (Drive)"; lbBtn.href = `https://drive.google.com/uc?export=download&id=${item.driveId}`; lbBtn.onclick = null;
                 lbBtn.className = "block w-full text-center bg-blue-700 text-white font-bold py-2 rounded-[3px] text-[10px] uppercase tracking-wider shadow-lg border-t border-blue-500";
             } else {
@@ -216,7 +217,15 @@
 
         function adjustZoom(delta) { if (currentFilter === 'video') return; currentZoom += delta; if (currentZoom < 1) currentZoom = 1; if (currentZoom > 4) currentZoom = 4; lbImg.style.transform = `scale(${currentZoom})`; if (currentZoom > 1) { zoomArea.style.overflow = 'auto'; lbImg.style.cursor = 'grab'; } else { zoomArea.style.overflow = 'hidden'; lbImg.style.cursor = 'default'; } }
         function navigate(direction) { let newIndex = currentIndex + direction; if (newIndex >= filteredData.length) newIndex = 0; if (newIndex < 0) newIndex = filteredData.length - 1; currentIndex = newIndex; updateContent(); }
+        
         function forceDownloadImage(driveId, fileName) { const toast = document.getElementById('toast'); toast.classList.remove('hidden'); const fastUrl = `https://wsrv.nl/?url=https://drive.google.com/uc?id=${driveId}&w=2500&q=95&output=jpg`; fetch(fastUrl).then(res => res.blob()).then(blob => { const blobUrl = window.URL.createObjectURL(blob); const link = document.createElement('a'); link.href = blobUrl; link.download = fileName + ".jpg"; document.body.appendChild(link); link.click(); document.body.removeChild(link); window.URL.revokeObjectURL(blobUrl); toast.classList.add('hidden'); }).catch(err => { console.error(err); toast.classList.add('hidden'); alert("Gagal koneksi."); }); }
+        
+        function quickDownload(index) {
+            const item = filteredData[index];
+            if(currentFilter === 'image') { forceDownloadImage(item.driveId, item.title); } 
+            else { window.open(`https://drive.google.com/uc?export=download&id=${item.driveId}`, '_blank'); }
+        }
+        
         function closeLightbox() { lightbox.classList.add('hidden'); lbImg.src = ""; lbVideo.src = ""; document.body.style.overflow = 'auto'; }
     </script>
 </body>
